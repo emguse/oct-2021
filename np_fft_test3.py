@@ -30,7 +30,6 @@ fsa[0] = fsa[0]/2
 fsa = fsa[1:int(N/2)]
 p_freq = freq[1:int(N/2)]
 
-
 # fast-fourier-transform with hannimg window
 fw = np.hanning(N)
 fsh = np.fft.fft(fw * wf)
@@ -38,12 +37,20 @@ fsh = np.fft.fft(fw * wf)
 fsha = np.abs(fsh/(N/2))
 fsha[0] = fsha[0]/2
 fsha = fsha[1:int(N/2)]
+# Compensate for the effect of the window function on power
+cf = 1/(sum(fw)/N) # hanning window amplitude correction factor
+fshc = cf * np.fft.fft(fw * wf)
+fshca = np.abs(fshc/(N/2))
+fshca[0] = fshca[0]/2
+fshca = fshca[1:int(N/2)]
 
 #plot
 plt.figure(figsize=(12.8, 4.8))
 plt.subplot(111)
 plt.plot(p_freq, fsa, label='with out hanning')
 plt.plot(p_freq, fsha, label='with hanning')
+plt.plot(p_freq, fshca, label='with corrected hanning')
+plt.legend()
 plt.xlabel('Frequency [Hz]')
 plt.ylabel("amplitude")
 plt.show()
