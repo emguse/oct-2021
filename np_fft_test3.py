@@ -47,7 +47,7 @@ fshca = fshca[1:int(N/2)]
 #plot
 plt.figure(figsize=(12.8, 4.8))
 plt.subplot(111)
-plt.plot(p_freq, fsa, label='with out hanning')
+plt.plot(p_freq, fsa, label='without hanning')
 plt.plot(p_freq, fsha, label='with hanning')
 plt.plot(p_freq, fshca, label='with corrected hanning')
 plt.legend()
