@@ -2,8 +2,10 @@ import time
 from grove.i2c import Bus
 import multi_timer
 import csv
+import datetime
 
-READ_INTERVAL = 1/128 #[sec]
+READ_INTERVAL = 1/128 # [sec]
+FILE_SAVE_INTERVAL = 3600 # [sec]
 
 # i2c address setting
 ADDRESS = 0x77
@@ -187,23 +189,29 @@ def main():
 
     Factors = dps310.read_calibration_coefficients() # Read Calibration Coefficients
 
-    try:
-        with open('pressure.csv', 'w', newline='') as f:
-            writer = csv.writer(f)
-            while True:
-                timer.timer() # Can simply use time.sleep().
-                if timer.up_state == True:
-                    timer.up_state = False
+    while True:
+        today = datetime.date.today()
+        filename = str(today.strftime('%Y%m%d')+'-'+time.strftime('%H%M%S')+'.csv')
+        try:
+            with open(filename, 'w', newline='') as f:
+                writer = csv.writer(f)
+                file_start_time = time.time()
+                while True:
+                    timer.timer() # Can simply use time.sleep().
+                    if timer.up_state == True:
+                        timer.up_state = False
 
-                    # process
-                    scaled_temp ,temperature = dps310.read_temperature(Factors) # read and compensation temperature
-                    press = dps310.read_pressure(scaled_temp, Factors) # read and compensation pressure
-                    #print(str(time.time()) + "," + str(press))
-                    data = [str(time.time()),str(press)]
-                    writer.writerow(data)
-    finally:
-        bus = Bus(None)
-        bus.write_byte_data(ADDRESS, 0x08, 0x00)
+                        # process
+                        scaled_temp ,temperature = dps310.read_temperature(Factors) # read and compensation temperature
+                        press = dps310.read_pressure(scaled_temp, Factors) # read and compensation pressure
+                        #print(str(time.time()) + "," + str(press))
+                        data = [str(time.time()),str(press)]
+                        writer.writerow(data)
+                    if file_start_time+FILE_SAVE_INTERVAL <= time.time():
+                        break
+        finally:
+            bus = Bus(None)
+            bus.write_byte_data(ADDRESS, 0x08, 0x00)
 
 if __name__ == "__main__":
   main()
