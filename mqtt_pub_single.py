@@ -13,7 +13,7 @@ class mqtt_pub_single():
         self.broker = broker
         self.port = port
         pass
-    def pub_single(self, data):
+    def pub_single(self, data :dict):
         msg = json.dumps(data)
         publish.single(self.topic, msg, hostname=self.broker, port=self.port)
 
